@@ -8,7 +8,7 @@ const NonAuth = () => {
   }
   return (
     <div>
-        <h1>Non auth component</h1>
+      
         <Outlet/>
     </div>
   )
