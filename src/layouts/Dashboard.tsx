@@ -52,35 +52,6 @@ const getMenuItems = (role: string) => {
 }
 
 
-
-// const items = [
-//   {
-//     key: '/',
-//     icon: <Icon component={Home}/>,
-//     label: <NavLink to="/">Home</NavLink>
-//   },
-//   {
-//     key: '/users',
-//     icon: <Icon component={UserIcon}/>,
-//     label: <NavLink to="/users">Users</NavLink>
-//   },
-//   {
-//     key: '/restaurants',
-//     icon: <Icon component={foodIcon}/>,
-//     label: <NavLink to="/restaurants">Restaurants</NavLink>
-//   },
-//   {
-//     key: '/products',
-//     icon: <Icon component={BasketIcon}/>,
-//     label: <NavLink to="/products">Products</NavLink>
-//   },
-//   {
-//     key: '/promos',
-//     icon: <Icon component={GiftIcon}/>,
-//     label: <NavLink to="/promos">Promos</NavLink>
-//   },
-// ]
-
 const Dashboard = () => {
   const {logout: logoutFromStore} = useAuthStore();
 
