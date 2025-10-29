@@ -56,8 +56,10 @@ const Users = () => {
         <Breadcrumb separator={<RightOutlined />} items={[{ title: <Link to="/">Dashboard</Link> }, {title: 'Users'}]} />
         {isLoading && <div>Loading...</div>}
         {isError && <div>{error.message}</div>}
-        <UsersFilter/>
-        <Table columns={columns} dataSource={users} />
+        <UsersFilter onFilterChange={(filterName: string, filterValue: string) => {
+          console.log(filterName, filterValue)
+        }}/>
+        <Table columns={columns} dataSource={users} rowKey={'id'}/>
       </Space>
     </>
   )
