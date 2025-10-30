@@ -1,9 +1,9 @@
 import { Breadcrumb, Button, Drawer, Form, Space, Table, theme } from "antd"
 import {RightOutlined, PlusOutlined} from '@ant-design/icons';
 import { Link, Navigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getUsers } from "../../http/api";
-import type { User } from "../../types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createUser, getUsers } from "../../http/api";
+import type { CreateUserData, User } from "../../types";
 import { useAuthStore } from "../../store";
 import UsersFilter from "./UsersFilter";
 import React from "react";
@@ -40,7 +40,8 @@ const columns = [
 ]
 
 const Users = () => {
-
+  const [form] = Form.useForm();
+  const queryClient = useQueryClient();
   const {
     token: {colorBgLayout}
   } = theme.useToken();
@@ -54,6 +55,23 @@ const Users = () => {
   });
 
   const {user} = useAuthStore();
+
+  const {mutate: userMutate} = useMutation({
+    mutationKey: ['user'],
+    mutationFn: async(data: CreateUserData) => createUser(data).then((res) => res.data),
+    onSuccess: async() => {
+      queryClient.invalidateQueries({queryKey: ['users']});
+      return;
+    }
+  });
+
+  const onHandleSubmit = async () => {
+    await form.validateFields();
+    await userMutate(form.getFieldsValue());
+    form.resetFields();
+    setDrawerOpen(false);
+  }
+
   if(user?.role !== 'admin'){
     return <Navigate to='/' replace={true}/>;
   }
@@ -71,9 +89,12 @@ const Users = () => {
         </UsersFilter>
         <Table columns={columns} dataSource={users} rowKey={'id'}/>
 
-        <Drawer title="Create user" width={720} styles={{body: {background: colorBgLayout}}} destroyOnHidden={true} open={drawerOpen} onClose={() => {setDrawerOpen(false);
-        }} extra={<Space><Button>Cancel</Button><Button type="primary">Submit</Button></Space>}>
-          <Form layout="vertical">
+        <Drawer title="Create user" width={720} styles={{body: {background: colorBgLayout}}} destroyOnHidden={true} open={drawerOpen} onClose={() => {form.resetFields(); setDrawerOpen(false);
+        }} extra={<Space><Button onClick={() => {
+          form.resetFields();
+          setDrawerOpen(false)
+        }}>Cancel</Button><Button type="primary" onClick={onHandleSubmit}>Submit</Button></Space>}>
+          <Form layout="vertical" form={form}>
             <UserForm/>
           </Form>
         </Drawer>
