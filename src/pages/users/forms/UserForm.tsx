@@ -93,7 +93,7 @@ const {data: tenants} = useQuery({
                                 <Select size="large" style={{width: '100%'}} allowClear={true} onChange={() => {}} placeholder="Select Restaurant">
                                     {
                                         tenants?.map((tenant: Tenant) => (
-                                            <Select.Option value={tenant.id}>{tenant.name}</Select.Option>
+                                            <Select.Option value={tenant.id} key={tenant.id}>{tenant.name}</Select.Option>
                                         ))
                                     }
                                 </Select>
