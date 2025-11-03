@@ -1,5 +1,5 @@
-import { Navigate, NavLink, Outlet } from "react-router-dom";
-import Icon, {BellFilled, HomeOutlined, UserOutlined} from '@ant-design/icons';
+import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
+import Icon, {BellFilled} from '@ant-design/icons';
 import { useAuthStore } from "../store";
 import { Avatar, Badge, Dropdown, Flex, Layout, Menu, Space, theme } from "antd";
 import { useState } from "react";
@@ -53,6 +53,7 @@ const getMenuItems = (role: string) => {
 
 
 const Dashboard = () => {
+  const location = useLocation();
   const {logout: logoutFromStore} = useAuthStore();
 
   const {mutate: logoutMutate} = useMutation({
@@ -71,7 +72,7 @@ const Dashboard = () => {
 
   const {user} = useAuthStore();
   if(user === null){
-    return <Navigate to='/auth/login' replace={true}/>;
+    return <Navigate to={`/auth/login?returnTo=${location.pathname}`} replace={true}/>;
   }
 
   const items = getMenuItems(user.role);
