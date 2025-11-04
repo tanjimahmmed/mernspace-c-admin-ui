@@ -2,7 +2,7 @@ import { Breadcrumb, Button, Drawer, Flex, Form, Space, Spin, Table, theme, Typo
 import {RightOutlined, PlusOutlined, LoadingOutlined} from '@ant-design/icons';
 import { Link, Navigate } from "react-router-dom";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createUser, getUsers } from "../../http/api";
+import { createUser, getUsers, updateUser } from "../../http/api";
 import type { CreateUserData, FieldData, User } from "../../types";
 import { useAuthStore } from "../../store";
 import UsersFilter from "./UsersFilter";
@@ -50,12 +50,16 @@ const columns = [
          </div>
       );
     },
-  }
+  },
+  
 ]
 
 const Users = () => {
   const [form] = Form.useForm();
   const [filterForm] = Form.useForm();
+
+  const [currentEditingUser, setCurrentEditingUser] = React.useState<User | null>(null);
+
   const queryClient = useQueryClient();
   const {
     token: {colorBgLayout}
@@ -67,6 +71,15 @@ const Users = () => {
   });
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if(currentEditingUser){
+      console.log(currentEditingUser)
+      setDrawerOpen(true);
+      form.setFieldsValue({...currentEditingUser, tenantId: currentEditingUser.tenant?.id})
+    }
+  }, [currentEditingUser, form])
+
   const {data:users, isFetching, isError, error} = useQuery({
     queryKey: ['users', queryParams],
     queryFn: () => {
@@ -90,10 +103,26 @@ const Users = () => {
     }
   });
 
+  const {mutate: updateUserMutation} = useMutation({
+    mutationKey: ['update-user'],
+    mutationFn: async(data: CreateUserData) => updateUser(data, currentEditingUser!.id).then((res) => res.data),
+    onSuccess: async() => {
+      queryClient.invalidateQueries({queryKey: ['users']});
+      return;
+    }
+  });
+
   const onHandleSubmit = async () => {
     await form.validateFields();
-    await userMutate(form.getFieldsValue());
+    const isEditMode = !!currentEditingUser;
+    if(isEditMode){
+      await updateUserMutation(form.getFieldsValue());
+    }else {
+      await userMutate(form.getFieldsValue());
+    }
+   
     form.resetFields();
+    setCurrentEditingUser(null);
     setDrawerOpen(false);
   }
 
@@ -137,7 +166,16 @@ const Users = () => {
         </Form>
 
         <Table 
-        columns={columns} 
+        columns={[...columns, {
+          title: 'Actions',
+          render: (_:string, record: User) => {
+            return (
+              <Space>
+                <Button type="link" onClick={() => {setCurrentEditingUser(record)}}>Edit</Button>
+              </Space>
+            )
+          }
+        }]} 
         dataSource={users?.data} 
         rowKey={'id'}
         pagination={{
@@ -158,13 +196,13 @@ const Users = () => {
         }}
         />
 
-        <Drawer title="Create user" width={720} styles={{body: {background: colorBgLayout}}} destroyOnHidden={true} open={drawerOpen} onClose={() => {form.resetFields(); setDrawerOpen(false);
+        <Drawer title={currentEditingUser ? "Edit User" : "Add user"} width={720} styles={{body: {background: colorBgLayout}}} destroyOnHidden={true} open={drawerOpen} onClose={() => {form.resetFields(); setCurrentEditingUser(null); setDrawerOpen(false);
         }} extra={<Space><Button onClick={() => {
           form.resetFields();
           setDrawerOpen(false)
         }}>Cancel</Button><Button type="primary" onClick={onHandleSubmit}>Submit</Button></Space>}>
           <Form layout="vertical" form={form}>
-            <UserForm/>
+            <UserForm isEditMode={!!currentEditingUser}/>
           </Form>
         </Drawer>
       </Space>
