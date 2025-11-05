@@ -6,11 +6,12 @@ import { useState } from "react";
 import Logo from "../components/icons/Logo";
 import Home from "../components/icons/Home";
 import UserIcon from "../components/icons/UserIcon";
-import { foodIcon } from "../components/icons/FoodIcon";
+import {foodIcon} from "../components/icons/FoodIcon";
 import BasketIcon from "../components/icons/BasketIcon";
 import GiftIcon from "../components/icons/GiftIcon";
 import { logout } from "../http/api";
 import { useMutation } from "@tanstack/react-query";
+import { BagIcon } from "../components/icons/BagIcon";
 
 const {Sider, Header, Content, Footer} = Layout;
 
@@ -21,12 +22,15 @@ const getMenuItems = (role: string) => {
         icon: <Icon component={Home}/>,
         label: <NavLink to="/">Home</NavLink>
       },
-      
-      
       {
         key: '/products',
-        icon: <Icon component={BasketIcon}/>,
+        icon: <Icon component={BagIcon}/>,
         label: <NavLink to="/products">Products</NavLink>
+      },
+      {
+        key: '/orders',
+        icon: <Icon component={BasketIcon}/>,
+        label: <NavLink to="/orders">Orders</NavLink>
       },
       {
         key: '/promos',
