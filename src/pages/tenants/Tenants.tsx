@@ -3,7 +3,7 @@ import React from 'react'
 import {PlusOutlined, RightOutlined} from '@ant-design/icons'
 import { Link, Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { getTenants } from '../../http/api'
+// import { getTenants } from '../../http/api'
 import { useAuthStore } from '../../store'
 import TenantFilter from './TenantFilter'
 
@@ -30,9 +30,9 @@ const Tenants = () => {
 const [drawerOpen, setDrawerOpen] = React.useState(false);
 const {data: tenants, isLoading, isError, error} = useQuery({
     queryKey: ['tenants'], 
-    queryFn: () => {
-        return getTenants().then((res) => res.data)
-    }
+    // queryFn: () => {
+    //     return getTenants().then((res) => res.data)
+    // }
 });
 
 const {user} = useAuthStore();
