@@ -15,3 +15,5 @@ export const updateUser = (user: CreateUserData, id: string) => api.patch(`${AUT
 
 // Catalog service
 export const getCategories = () => api.get(`${CATALOG_SERVICE}/categories`);
+
+export const getProducts = (queryParam: string) => api.get(`${CATALOG_SERVICE}/products?${queryParam}`)

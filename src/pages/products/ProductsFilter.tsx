@@ -16,7 +16,9 @@ const ProductsFilter = ({children}: ProductsFilterProps) => {
 
     const {data: categories} = useQuery({
         queryKey: ['categories'],
-        queryFn: () => {return getCategories()}
+        queryFn: () => {
+            return getCategories()
+        }
     })
 
     console.log(categories)
@@ -35,7 +37,6 @@ const ProductsFilter = ({children}: ProductsFilterProps) => {
                 <Col span={6}>
                     <Form.Item name="category"> 
                         <Select style={{width: '100%'}} allowClear={true} placeholder="Select Category">
-                            <Select style={{width: '100%'}} allowClear={true} placeholder="Select Category">
                                 {categories?.data.map((category: Category) => {
                                     return (
                                         <Select.Option key={category._id} value={category._id}>
@@ -44,7 +45,6 @@ const ProductsFilter = ({children}: ProductsFilterProps) => {
                                     )
                                 })}
                             </Select>
-                        </Select>
                     </Form.Item>
                 </Col>
 
