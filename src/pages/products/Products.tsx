@@ -2,12 +2,13 @@ import { Breadcrumb, Button, Flex, Form, Image, Space, Table, Tag, Typography } 
 import { RightOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { Link } from "react-router-dom";
 import ProductsFilter from "./ProductsFilter";
-import type { Product } from "../../types";
+import type { FieldData, Product } from "../../types";
 import React from "react";
 import { PER_PAGE } from "../../constants";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getProducts } from "../../http/api";
 import { format } from "date-fns";
+import { debounce } from "lodash";
 
 const columns = [
   {
@@ -56,8 +57,8 @@ const columns = [
 const Products = () => {
   const [filterForm] = Form.useForm();
   const [queryParams, setQueryParams] = React.useState({
-      perPage: PER_PAGE,
-      currentPage: 1,
+      limit: PER_PAGE,
+      page: 1,
   });
 
   const {data:products, isFetching, isError, error} = useQuery({
@@ -71,6 +72,24 @@ const Products = () => {
     },
     placeholderData: keepPreviousData,
   });
+
+  const debouncedQUpdate = React.useMemo(() => {
+        return debounce((value: string | undefined) => {
+          setQueryParams((prev) => ({...prev, q: value, page: 1}))
+        }, 500)
+  }, []);
+
+  const onFilterChange = (changedFields: FieldData[]) => {
+     const changedFilterFields = changedFields.map((item) => ({
+        [item.name[0]]: item.value
+    })).reduce((acc, item) => ({...acc, ...item}), {});
+    if('q' in changedFilterFields) {
+      debouncedQUpdate(changedFilterFields.q)
+    } else {
+      setQueryParams((prev) => ({...prev, ...changedFilterFields, page: 1}));
+    }
+  }
+
   return (
     <>
     <Space direction="vertical" size="large" style={{width: '100%'}}>
@@ -78,7 +97,7 @@ const Products = () => {
         <Breadcrumb separator={<RightOutlined/>} items={[{title: <Link to="/">Dashboard</Link>}, {title: 'Products'}]}/>
       </Flex>
 
-      <Form form={filterForm} onFieldsChange={() => {}}>
+      <Form form={filterForm} onFieldsChange={onFilterChange}>
           <ProductsFilter>
             <Button type="primary" icon={<PlusOutlined />} onClick={()=>{}}>Add Product</Button>
           </ProductsFilter>
@@ -100,13 +119,13 @@ const Products = () => {
         rowKey={'id'}
         pagination={{
           total: products?.total,
-          pageSize: queryParams.perPage,
-          current: queryParams.currentPage,
+          pageSize: queryParams.limit,
+          current: queryParams.page,
           onChange: (page) => {
             setQueryParams((prev)=> {
               return {
                 ...prev,
-                currentPage: page,
+                page: page,
               }
             })
           },
