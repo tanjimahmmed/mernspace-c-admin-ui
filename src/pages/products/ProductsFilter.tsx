@@ -22,7 +22,6 @@ const ProductsFilter = ({children}: ProductsFilterProps) => {
         }
     })
 
-    console.log(categories)
 
   return (
     <Card>

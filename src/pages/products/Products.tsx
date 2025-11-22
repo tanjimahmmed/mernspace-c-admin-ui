@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Flex, Form, Image, Space, Table, Tag, Typography, Spin } from "antd"
+import { Breadcrumb, Button, Flex, Form, Image, Space, Table, Tag, Typography, Spin, Drawer, theme } from "antd"
 import { RightOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { Link } from "react-router-dom";
 import ProductsFilter from "./ProductsFilter";
@@ -10,6 +10,7 @@ import { getProducts } from "../../http/api";
 import { format } from "date-fns";
 import { debounce } from "lodash";
 import { useAuthStore } from "../../store";
+import ProductForm from './forms/ProductForm.js'
 
 const columns = [
   {
@@ -57,7 +58,14 @@ const columns = [
 
 const Products = () => {
   const [filterForm] = Form.useForm();
+  const [form] = Form.useForm();
   const {user} = useAuthStore();
+
+  const {
+    token: {colorBgLayout}
+  } = theme.useToken();
+
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const [queryParams, setQueryParams] = React.useState({
       limit: PER_PAGE,
@@ -94,6 +102,10 @@ const Products = () => {
     }
   }
 
+  const onHandleSubmit = () => {
+    console.log('Submitting...')
+  }
+
   return (
     <>
     <Space direction="vertical" size="large" style={{width: '100%'}}>
@@ -105,7 +117,7 @@ const Products = () => {
 
       <Form form={filterForm} onFieldsChange={onFilterChange}>
           <ProductsFilter>
-            <Button type="primary" icon={<PlusOutlined />} onClick={()=>{}}>Add Product</Button>
+            <Button type="primary" icon={<PlusOutlined />} onClick={()=>{setDrawerOpen(true)}}>Add Product</Button>
           </ProductsFilter>
         </Form>
 
@@ -140,6 +152,15 @@ const Products = () => {
           }
         }}
         />
+        <Drawer title={'Add Product'} width={720} styles={{body: {background: colorBgLayout}}} destroyOnHidden={true} open={drawerOpen} onClose={() => {form.resetFields(); setDrawerOpen(false);
+        }} extra={<Space><Button onClick={() => {
+          form.resetFields();
+          setDrawerOpen(false)
+        }}>Cancel</Button><Button type="primary" onClick={onHandleSubmit}>Submit</Button></Space>}>
+          <Form layout="vertical" form={form}>
+            <ProductForm/>
+          </Form>
+        </Drawer>
     </Space>
     </>
   )
