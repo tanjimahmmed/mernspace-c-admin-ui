@@ -5,12 +5,13 @@ import ProductsFilter from "./ProductsFilter";
 import type { FieldData, Product } from "../../types";
 import React from "react";
 import { PER_PAGE } from "../../constants";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { getProducts } from "../../http/api";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createProduct, getProducts } from "../../http/api";
 import { format } from "date-fns";
 import { debounce } from "lodash";
 import { useAuthStore } from "../../store";
 import ProductForm from './forms/ProductForm.js'
+import { makeFormData } from "./helpers.js";
 
 const columns = [
   {
@@ -102,8 +103,55 @@ const Products = () => {
     }
   }
 
-  const onHandleSubmit = () => {
-    console.log('Submitting...')
+  const queryClient = useQueryClient();
+  const {mutate: productMutate} = useMutation({
+    mutationKey: ['product'],
+    mutationFn: async (data: FormData) => createProduct(data).then((res) => res.data),
+    onSuccess: async() => {
+      queryClient.invalidateQueries({queryKey: ['products']});
+      form.resetFields();
+      setDrawerOpen(false);
+      return;
+    }
+  })
+
+  const onHandleSubmit = async () => {
+
+    await form.validateFields();
+    
+    const priceConfiguration = form.getFieldValue('priceConfiguration');
+    const pricing = Object.entries(priceConfiguration).reduce((acc, [key, value]) => {
+      const parsedKey = JSON.parse(key);
+      return {
+        ...acc,
+        [parsedKey.configurationKey]: {
+          priceType: parsedKey.priceType,
+          availableOptions: value,
+        }
+      }
+    }, {});
+    const categoryId = JSON.parse(form.getFieldValue('categoryId'))._id;
+    const attributes = Object.entries(form.getFieldValue('attributes')).map(([key, value]) => {
+      return {
+        name: key,
+        value: value
+      }
+    });
+    
+    console.log('Submitting...', categoryId)
+
+    const postData = {
+      ...form.getFieldsValue(),
+      isPublish: form.getFieldValue('isPublish') ? true : false,
+      image: form.getFieldValue('image'),
+      categoryId,
+      priceConfiguration: pricing,
+      attributes
+    }
+
+
+    const formData = makeFormData(postData)
+    await productMutate(formData)
   }
 
   return (
