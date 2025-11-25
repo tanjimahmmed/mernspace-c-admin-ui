@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Col, Row, Space, Card, Form, Input, Select, Typography, Switch } from 'antd'
+import { Col, Row, Space, Card, Form, Input, Select, Typography, Switch, type FormInstance } from 'antd'
 import { getCategories, getTenants } from '../../../http/api';
 import type { Category, Tenant } from '../../../types';
 import Pricing from './Pricing';
@@ -7,7 +7,7 @@ import Attributes from './Attributes';
 import ProductImage from './ProductImage';
 import { useAuthStore } from '../../../store';
 
-const ProductForm = () => {
+const ProductForm = ({form}: {form: FormInstance}) => {
     
 const {user} = useAuthStore();
 const selectedCategory = Form.useWatch('categoryId');
@@ -51,7 +51,7 @@ const selectedCategory = Form.useWatch('categoryId');
                                     <Select size="large" style={{width: '100%'}} allowClear={true} onChange={() => {}} placeholder="Select Category">
                                         {
                                             categories?.data.map((category: Category) => (
-                                                <Select.Option value={JSON.stringify(category)} key={category._id}>{category.name}</Select.Option>
+                                                <Select.Option value={category._id} key={category._id}>{category.name}</Select.Option>
                                             ))
                                         }
                                     </Select>
@@ -72,7 +72,7 @@ const selectedCategory = Form.useWatch('categoryId');
                     <Card title="Product Image" variant="borderless">
                         <Row gutter={20}>
                             <Col span={12}>
-                                <ProductImage/>
+                                <ProductImage initialImage={form.getFieldValue('image')}/>
                             </Col>
                             
                         </Row>
@@ -91,7 +91,7 @@ const selectedCategory = Form.useWatch('categoryId');
                                             <Select size="large" style={{width: '100%'}} allowClear={true} onChange={() => {}} placeholder="Select Restaurant">
                                                 {
                                                     restaurants?.data.data.map((tenant: Tenant) => (
-                                                        <Select.Option value={tenant.id} key={tenant.id}>{tenant.name}</Select.Option>
+                                                        <Select.Option value={String(tenant.id)} key={tenant.id}>{tenant.name}</Select.Option>
                                                     ))
                                                 }
                                             </Select>
