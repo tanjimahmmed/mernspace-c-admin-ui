@@ -104,7 +104,7 @@ const Products = () => {
   }
 
   const queryClient = useQueryClient();
-  const {mutate: productMutate} = useMutation({
+  const {mutate: productMutate, isPending: isCreateLoading} = useMutation({
     mutationKey: ['product'],
     mutationFn: async (data: FormData) => createProduct(data).then((res) => res.data),
     onSuccess: async() => {
@@ -201,10 +201,12 @@ const Products = () => {
         }}
         />
         <Drawer title={'Add Product'} width={720} styles={{body: {background: colorBgLayout}}} destroyOnHidden={true} open={drawerOpen} onClose={() => {form.resetFields(); setDrawerOpen(false);
-        }} extra={<Space><Button onClick={() => {
+        }} extra={<Space>
+          <Button onClick={() => {
           form.resetFields();
           setDrawerOpen(false)
-        }}>Cancel</Button><Button type="primary" onClick={onHandleSubmit}>Submit</Button></Space>}>
+        }}>Cancel</Button>
+        <Button type="primary" onClick={onHandleSubmit} loading={isCreateLoading}>Submit</Button></Space>}>
           <Form layout="vertical" form={form}>
             <ProductForm/>
           </Form>
