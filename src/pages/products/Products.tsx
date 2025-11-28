@@ -159,16 +159,26 @@ const Products = () => {
     await form.validateFields();
     
     const priceConfiguration = form.getFieldValue('priceConfiguration');
+    // const pricing = Object.entries(priceConfiguration).reduce((acc, [key, value]) => {
+    //   const parsedKey = JSON.parse(key);
+    //   return {
+    //     ...acc,
+    //     [parsedKey.configurationKey]: {
+    //       priceType: parsedKey.priceType,
+    //       availableOptions: value,
+    //     }
+    //   }
+    // }, {});
     const pricing = Object.entries(priceConfiguration).reduce((acc, [key, value]) => {
-      const parsedKey = JSON.parse(key);
-      return {
-        ...acc,
-        [parsedKey.configurationKey]: {
-          priceType: parsedKey.priceType,
-          availableOptions: value,
-        }
-      }
-    }, {});
+            const parsedKey = JSON.parse(key);
+            return {
+                ...acc,
+                [parsedKey.configurationKey]: {
+                    priceType: parsedKey.priceType,
+                    availableOptions: value,
+                },
+            };
+        }, {});
     const categoryId = form.getFieldValue('categoryId');
     const attributes = Object.entries(form.getFieldValue('attributes')).map(([key, value]) => {
       return {

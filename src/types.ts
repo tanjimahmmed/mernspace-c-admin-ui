@@ -36,7 +36,6 @@ export type FieldData = {
     name: string[];
     value?: string;
 }
-
 export interface PriceConfiguration {
     [key: string]: {
         priceType: "base" | "aditional";
